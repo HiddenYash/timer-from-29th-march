@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Counter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #12100e;
+            --paper-color: #1a1614;
+            --text-primary: #d4c5b9;
+            --text-muted: #8c7e75;
+            --border-color: #382f2a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Playfair Display', serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 30%, rgba(45, 36, 30, 0.4) 0%, rgba(18, 16, 14, 0.95) 80%);
+            z-index: 1;
+        }
+
+        .noise-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 3;
+            width: 90%;
+            max-width: 650px;
+            background: var(--paper-color);
+            border: 1px solid var(--border-color);
+            padding: 50px 35px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border-radius: 2px;
+        }
+
+        /* Folded paper effect */
+        .container::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            border-style: solid;
+            border-width: 0 0 25px 25px;
+            border-color: transparent transparent #26201c var(--paper-color);
+            box-shadow: -2px -2px 3px rgba(0,0,0,0.3);
+        }
+
+        .letter-header {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        /* Single Continuous Counter Box */
+        .counter-box {
+            background: rgba(15, 13, 11, 0.7);
+            border: 1px solid var(--border-color);
+            padding: 25px 20px;
+            border-radius: 2px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+            margin-bottom: 35px;
+        }
+
+        .counter-text {
+            font-family: 'Special Elite', cursive;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            line-height: 1.8;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(212, 197, 185, 0.12);
+        }
+
+        .counter-text span {
+            color: #e3d2c3;
+            font-weight: bold;
+        }
+
+        .footer-note {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 35px 20px;
+            }
+            .counter-text {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+
+    <div class="container">
+        <div class="letter-header">— 29 March 2026, 01:45:13 PM —</div>
+        
+        <p class="quote">
+            "Waqt guzarta gaya, par yaadein wahin thehar gayin..."
+        </p>
+
+        <div class="counter-box">
+            <div class="counter-text" id="continuous-timer">
+                Loading memory...
+            </div>
+        </div>
+
+        <div class="footer-note">
+            Counting every single second since that moment.
+        </div>
+    </div>
+
+    <script>
+        // Target Date: 29 March 2026, 01:45:13 PM IST
+        const targetDate = new Date(2026, 2, 29, 13, 45, 13).getTime();
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const difference = now - targetDate;
+
+            if (difference < 0) {
+                document.getElementById("continuous-timer").innerHTML = "The date is in the future...";
+                return;
+            }
+
+            const totalSeconds = Math.floor(difference / 1000);
+
+            const days = Math.floor(totalSeconds / (3600 * 24));
+            const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            document.getElementById("continuous-timer").innerHTML = 
+                `<span>${days}</span> Days, <span>${hours}</span> Hours, <span>${minutes}</span> Minutes, <span>${seconds}</span> Seconds`;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>
